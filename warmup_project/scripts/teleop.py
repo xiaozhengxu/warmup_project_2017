@@ -25,12 +25,17 @@ class Teleop(object):
         #return self.key
 
     def run(self):
-        print "TEST"
         while self.key != '\x03':
             self.getKey()
             print ord(self.key)
-            if self.key == chr(27):
-                print "escape was pressed"
+            if self.key == 'u':
+                self.pub.publish(Twist(linear = Vector3(x = 1.0), angular = Vector3(z = 0.5)))
+            elif self.key == 'i':
+                self.pub.publish(Twist(linear = Vector3(x = 1.0)))
+            elif self.key == 'o':
+                self.pub.publish(Twist(linear = Vector3(x = 1.0),angular = Vector3(z = -0.5)))
+            elif self.key == 'k':
+                self.pub.publish(Twist(linear = Vector3(x = 0.0),angular = Vector3(z = 0.0)))
             self.r.sleep()
             print 'is_running'
 
