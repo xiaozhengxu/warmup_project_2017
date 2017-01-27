@@ -27,15 +27,26 @@ class Teleop(object):
     def run(self):
         while self.key != '\x03':
             self.getKey()
-            print ord(self.key)
+
             if self.key == 'u':
-                self.pub.publish(Twist(linear = Vector3(x = 1.0), angular = Vector3(z = 0.5)))
+                self.pub.publish(Twist(linear = Vector3(x = 1.0), angular = Vector3(z = 0.5))) #turn left
             elif self.key == 'i':
                 self.pub.publish(Twist(linear = Vector3(x = 1.0)))
             elif self.key == 'o':
                 self.pub.publish(Twist(linear = Vector3(x = 1.0),angular = Vector3(z = -0.5)))
-            elif self.key == 'k':
+            elif self.key == 'k' or self.key == '\r':
                 self.pub.publish(Twist(linear = Vector3(x = 0.0),angular = Vector3(z = 0.0)))
+            elif self.key == 'j':
+                self.pub.publish(Twist(linear = Vector3(x = 0.0),angular = Vector3(z = 0.5)))
+            elif self.key == 'l':
+                self.pub.publish(Twist(linear = Vector3(x = 0.0),angular = Vector3(z = -0.5)))
+            elif self.key == 'm':
+                self.pub.publish(Twist(linear = Vector3(x = -1.0), angular = Vector3(z = 0.5))) #turn left
+            elif self.key == ',':
+                self.pub.publish(Twist(linear = Vector3(x = -1.0)))
+            elif self.key == '.':
+                self.pub.publish(Twist(linear = Vector3(x = -1.0),angular = Vector3(z = -0.5)))
+
             self.r.sleep()
             print 'is_running'
 
