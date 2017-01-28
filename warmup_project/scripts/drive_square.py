@@ -6,6 +6,7 @@ from geometry_msgs.msg import Twist, Vector3, Point, PoseWithCovariance, Pose
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Header
 import rospy
+import math
 
 class Drive_square(object):
 
@@ -14,11 +15,73 @@ class Drive_square(object):
 		rospy.Subscriber('/odom', Odometry, self.process_odom)
 		self.pub = rospy.Publisher('/cmd_vel',Twist, queue_size = 10)
 		self.r = rospy.Rate(10)
+		self.x = None
+		self.z = None
+		self.state = 'turn'
+		self.last_pos = None
 		self.initial_pos = None
+		self.pos_2 = None
+		self.pos_3 = None
+		self.pos_4 = None
+		self.done = False
 
 	def process_odom(self,msg):
+		orien_z = msg.pose.pose.orientation.z
+		orien_w = msg.pose.pose.orientation.w
+		if self.last_pos!=None:
+			dist_to_last_pos = math.sqrt((msg.pose.pose.position.x-self.last_pos.x)**2+(msg.pose.pose.position.y-self.last_pos.y)**2)		
 		if self.initial_pos == None:
 			self.initial_pos = msg.pose.pose.position # point object
+			self.last_pos = self.initial_pos
+		elif self.pos_2 == None:
+			if not (orien_z<0.72 and orien_z>0.66 and orien_w<0.74 and orien_w>0.68):
+				self.z = 0.5
+				self.x = 0
+			elif dist_to_last_pos<1: #if the orientation is right, and not yet travelled 1m, move forward
+				self.z = 0
+				self.x = 1
+			else: # if it has travelled 1m, if has reached the second position
+				self.pos_2 = msg.pose.pose.position
+				self.last_pos = self.pos_2
+				self.z = 0
+				self.x = 0
+		elif self.pos_3 == None:
+			if not (orien_z<1 and orien_z>0.98 and orien_w<0.04 and orien_w>0.02):
+				self.z = 0.5
+				self.x = 0
+			elif dist_to_last_pos<1: #if the orientation is right, and not yet travelled 1m, move forward
+				self.z = 0
+				self.x = 1
+			else: # if it has travelled 1m, if has reached the third position
+				self.pos_3 = msg.pose.pose.position
+				self.last_pos = self.pos_3
+				self.z = 0
+				self.x = 0
+		elif self.pos_4 == None:
+			if not (orien_z<0.74 and orien_z>0.72 and orien_w<-0.67 and orien_w>-0.69):
+				self.z = 0.5
+				self.x = 0
+			elif dist_to_last_pos<1: #if the orientation is right, and not yet travelled 1m, move forward
+				self.z = 0
+				self.x = 1
+			else: # if it has travelled 1m, if has reached the fourth position
+				self.pos_4 = msg.pose.pose.position
+				self.last_pos = self.pos_4
+				self.z = 0
+				self.x = 0
+		else: # It has reached the 4th position, go back to the initial position 
+			if not (orien_z<0.015 and orien_z>0.085 and orien_w<-0.98 and orien_w>-1):
+				self.z = 0.5
+				self.x = 0
+			elif dist_to_last_pos<1: #if the orientation is right, and not yet travelled 1m, move forward
+				self.z = 0
+				self.x = 1
+			else: # if it has travelled 1m, if has reached the initial position
+				self.last_pos = self.initial_pos
+				self.z = 0
+				self.x = 0
+				self.done = True
+				
 
 # in classroom: turning to the left 
 # facing front wall orientation.z: 0.69, w: 0.7188
@@ -28,13 +91,14 @@ class Drive_square(object):
 	
 	def run(self):
 		while not rospy.is_shutdown():
-			linear_msg = Vector3(x = 0)
-			angular_msg = Vector3(z = 0)
-			twist_msg = Twist(linear=linear_msg, angular = angular_msg)
-			self.pub.publish(twist_msg)
-			print twist_msg
+			if self.x !=None and self.z!=None and self.done == False:
+				linear_msg = Vector3(x = self.x)
+				angular_msg = Vector3(z = self.z)
+				twist_msg = Twist(linear=linear_msg, angular = angular_msg)
+				self.pub.publish(twist_msg)
+				print twist_msg
 			self.r.sleep()
 
 if __name__ == '__main__':
-	my_stop = Emergency_Stop()
-	my_stop.run()
+	ds = Drive_square()
+	ds.run()
