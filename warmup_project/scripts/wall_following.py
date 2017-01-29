@@ -16,6 +16,8 @@ class WallApproach(object):
         self.left_back = None
         self.target = rospy.get_param('~target_distance')
         self.k = rospy.get_param('~k')
+        self.kd = rospy.get_param('~kd')
+        self.ka = rospy.get_param('~ka')
         self.found_wall = False
         self.follow_wall = False
 
@@ -44,29 +46,25 @@ class WallApproach(object):
                         error = self.front_distance - self.target
                         self.pub.publish(Twist(linear=Vector3(x=error*self.k)))
                     else:
-                        self.pub.publish(Twist(linear=Vector3(x=0.0)))
+                        self.pub.publish(Twist(linear=Vector3(x=0.0),angular = Vector3(z = -0.3)))
                         self.found_wall = True
                         print 'found wall'
-            elif self.follow_wall == False:
-                if (self.left_mid > (self.target+0.05)) or (self.left_mid < (self.target-0.05)):
-                    error = self.left_mid - self.target
-                    self.pub.publish(Twist(angular=Vector3(z=(-1*error*self.k))))
-                else:
-                    self.follow_wall = True
-                    print 'following wall'
-            # else:
-
-            #     self.pub.publish(Twist(linear = Vector3(x = 1.0), angular = Vector3(z = error*self.k)))
-
-
-   #          else self.x !=None and self.z!=None and self.done == False:
-            #   linear_msg = Vector3(x = self.x)
-            #   angular_msg = Vector3(z = self.z)
-            #   twist_msg = Twist(linear=linear_msg, angular = angular_msg)
-            #   self.pub.publish(twist_msg)
-            #   print twist_msg
-            # self.r.sleep()
+            # elif self.follow_wall == False:
+            #     if (self.left_mid > (self.target+0.05)) or (self.left_mid < (self.target-0.05)):
+            #         error = self.left_mid - self.target
+            #         self.pub.publish(Twist(angular=Vector3(z=(-1*error*self.kd))))
+            #     else:
+            #         self.follow_wall = True
+            #         self.pub.publish(Twist(angular=Vector3(z=0)))
+            #         print 'in direction to following wall'
+            else:
+                errord = self.left_mid - self.target
+                # errord = 0
+                errora = self.left_back - self.left_front
+                self.pub.publish(Twist(linear = Vector3(x = 0.5), angular = Vector3(z = errord*self.kd+errora*self.ka)))
+                print "following wall"
             r.sleep()
+    #k = 0.5, kd = 0.5, ka = 0.1
 
 if __name__ == '__main__':
     node = WallApproach()

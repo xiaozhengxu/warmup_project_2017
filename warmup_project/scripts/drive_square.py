@@ -34,8 +34,8 @@ class Drive_square(object):
 			self.initial_pos = msg.pose.pose.position # point object
 			self.last_pos = self.initial_pos
 		elif self.pos_2 == None:
-			if not (orien_z<0.72 and orien_z>0.66 and orien_w<0.74 and orien_w>0.68):
-				self.z = 0.5
+			if not (orien_z<0.73 and orien_z>0.65 and orien_w<0.75 and orien_w>0.67):
+				self.z = 0.3
 				self.x = 0
 			elif dist_to_last_pos<1: #if the orientation is right, and not yet travelled 1m, move forward
 				self.z = 0
@@ -45,9 +45,10 @@ class Drive_square(object):
 				self.last_pos = self.pos_2
 				self.z = 0
 				self.x = 0
+				print "pos_2 reached"
 		elif self.pos_3 == None:
-			if not (orien_z<1 and orien_z>0.98 and orien_w<0.04 and orien_w>0.02):
-				self.z = 0.5
+			if not (orien_z<1.03 and orien_z>0.95 and orien_w<0.07 and orien_w>-0.9):
+				self.z = 0.3
 				self.x = 0
 			elif dist_to_last_pos<1: #if the orientation is right, and not yet travelled 1m, move forward
 				self.z = 0
@@ -57,9 +58,10 @@ class Drive_square(object):
 				self.last_pos = self.pos_3
 				self.z = 0
 				self.x = 0
+				print "pos_3 reached"
 		elif self.pos_4 == None:
-			if not (orien_z<0.74 and orien_z>0.72 and orien_w<-0.67 and orien_w>-0.69):
-				self.z = 0.5
+			if not (orien_z<0.77 and orien_z>0.69 and orien_w<-0.64 and orien_w>-0.72):
+				self.z = 0.3
 				self.x = 0
 			elif dist_to_last_pos<1: #if the orientation is right, and not yet travelled 1m, move forward
 				self.z = 0
@@ -69,19 +71,24 @@ class Drive_square(object):
 				self.last_pos = self.pos_4
 				self.z = 0
 				self.x = 0
+				print "pos_4 reached"
 		else: # It has reached the 4th position, go back to the initial position 
-			if not (orien_z<0.015 and orien_z>0.085 and orien_w<-0.98 and orien_w>-1):
-				self.z = 0.5
+			if not (orien_z<0.14 and orien_z>0.06 and orien_w<-0.94 and orien_w>-1.03):
+				self.z = 0.3
 				self.x = 0
 			elif dist_to_last_pos<1: #if the orientation is right, and not yet travelled 1m, move forward
 				self.z = 0
 				self.x = 1
 			else: # if it has travelled 1m, if has reached the initial position
-				self.last_pos = self.initial_pos
 				self.z = 0
 				self.x = 0
+				print "initial posistion reached"
+				self.last_pos = self.initial_pos
+				linear_msg = Vector3(x = self.x)
+				angular_msg = Vector3(z = self.z)
+				twist_msg = Twist(linear=linear_msg, angular = angular_msg)
+				self.pub.publish(twist_msg)
 				self.done = True
-				
 
 # in classroom: turning to the left 
 # facing front wall orientation.z: 0.69, w: 0.7188
@@ -96,7 +103,7 @@ class Drive_square(object):
 				angular_msg = Vector3(z = self.z)
 				twist_msg = Twist(linear=linear_msg, angular = angular_msg)
 				self.pub.publish(twist_msg)
-				print twist_msg
+				# print twist_msg
 			self.r.sleep()
 
 if __name__ == '__main__':
