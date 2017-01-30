@@ -9,8 +9,8 @@ from visualization_msgs.msg import Marker
 from std_msgs.msg import Header, ColorRGBA
 
 class PersonFollow(object):
-	def __init__(self):
-		rospy.init_node('person_follow')
+    def __init__(self):
+        rospy.init_node('person_follow')
         rospy.Subscriber('/stable_scan', LaserScan, self.process_scan)
         self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.vis_pub = rospy.Publisher('visualization_marker',Marker, queue_size = 10)
@@ -31,59 +31,69 @@ class PersonFollow(object):
         self.found_master = False
 
     def process_scan(self,msg):
-    	"""Find the closest point in front of the robot:"""
-    	for i in range(0,61):
-    		if msg.ranges[i]!= 0.0 and msg.ranges[i]<self.min_front_dist:
-    			self.min_front_dist = msg.ranges[i]
-    			self.min_front_index = i
-    	for j in range(300,361):
-    		if msg.ranges[i]!= 0.0 msg.ranges[j]<self.min_front_dist:
-    			self.min_front_dist = msg.ranges[j]
-    			self.min_front_index = j
+        """Find the closest point in front of the robot:"""
+        for i in range(0,61):
+            if msg.ranges[i]!= 0.0 and msg.ranges[i]<self.min_front_dist:
+                self.min_front_dist = msg.ranges[i]
+                self.min_front_index = i
+        for j in range(300,361):
+            if msg.ranges[i]!= 0.0 and msg.ranges[j]<self.min_front_dist:
+                self.min_front_dist = msg.ranges[j]
+                self.min_front_index = j
 
-    	"""Accumulate all the scan points belonging to the person"""
-    	if self.min_front_dist<2.0:
-    		self.found_master = True
-    		self.person_x.append(self.min_front_dist*math.sin(math.radians(self.min_front_index)))
-    		self.person_y.append(self.min_front_dist*math.cos(math.radians(self.min_front_index)))
+        """Accumulate all the scan points belonging to the person"""
+        if self.min_front_dist<2.0:
+            self.found_master = True
+            self.person_x.append(self.min_front_dist*math.sin(math.radians(self.min_front_index)))
+            self.person_y.append(self.min_front_dist*math.cos(math.radians(self.min_front_index)))
 
-    	i = 0
-    	while i<21:
-    		i++
-    		dl = msg.ranges[self.min_front_index+i]
-    		dr = msg.ranges[self.min_front_index+360-i]
-    		if dl!=0.0 and math.abs(dl-self.min_front_dist)<0.3:
-    			self.person_x.append(dl*math.sin(math.radians(self.min_front_index+i)))
-    			self.person_y.append(dl*math.cos(math.radians(self.min_front_index+i)))
-    		if dr!=0.0 and math.abs(dr-self.min_front_dist)<0.3:
-    			self.person_x.append(dl*math.sin(math.radians(self.min_front_index+360-i)))
-    			self.person_y.append(dl*math.cos(math.radians(self.min_front_index+360-i)))
+            i = 0
+            while i<21:
+                i+=1
+                al = self.min_front_index +i
+                ar = self.min_front_index -i
+                if al>360:
+                    al-=360
+                elif al<0:
+                    al+=360
+                if ar>360:
+                    ar-=360
+                elif ar<0:
+                    ar+=360
+                dl = msg.ranges[al]
+                dr = msg.ranges[ar]
+                if dl!=0.0 and math.fabs(dl-self.min_front_dist)<0.3:
+                    self.person_x.append(dl*math.sin(math.radians(al)))
+                    self.person_y.append(dl*math.cos(math.radians(al)))
+                if dr!=0.0 and math.fabs(dr-self.min_front_dist)<0.3:
+                    self.person_x.append(dl*math.sin(math.radians(ar)))
+                    self.person_y.append(dl*math.cos(math.radians(ar)))
 
-    	self.person_center_x = sum(self.person_x)/length(self.person_x)
-    	self.person_center_y = sum(self.person_y)/length(self.person_y)
-    	
-    	self.person_center_angle = math.atan(self.person_center_y/self.person_center_x)
-    	self.person_center_dist = math.sqrt(self.person_center_x**2+self.person_center_y**2)
+            self.person_center_x = sum(self.person_x)/len(self.person_x)
+            self.person_center_y = sum(self.person_y)/len(self.person_y)
+            
+            self.person_center_angle = math.atan(self.person_center_y/self.person_center_x)
+            self.person_center_dist = math.sqrt(self.person_center_x**2+self.person_center_y**2)
 
-    	my_marker = Marker(header = Header(frame_id = "base_link"), scale = Vector3(x = 0.1), 
-    	pose = Pose(position = Point(x = self.person_center_x, y = self.person_center_y)), 
+            my_marker = Marker(header = Header(frame_id = "base_link"), scale = Vector3(x = 0.1), 
+            pose = Pose(position = Point(x = self.person_center_x, y = self.person_center_y)), 
 
-        type = 2, color = ColorRGBA(g = 1, a = 1))
+            type = 2, color = ColorRGBA(g = 1, a = 1))
 
-        self.vis_pub.publish(my_marker)
+            self.vis_pub.publish(my_marker)
 
     def run(self):
-    	r = rospy.Rate(5)
+        r = rospy.Rate(5)
         while not rospy.is_shutdown():
             if self.found_master:
                 errord = self.person_center_dist - self.target
                 if self.person_center_angle>300:
-                	errora = self.person_center_angle -361
+                    errora = self.person_center_angle -361
                 elif self.person_center_angle<70:
-                	errora = self.person_center_angle - 0
+                    errora = self.person_center_angle - 0
                 self.pub.publish(Twist(linear=Vector3(x = errord*self.kd), angular = Vector3(z = errora*self.ka)))
             else:
-            	self.pub.publish(Twist(linear=Vector3(x= 0), angular = Vector3(z = 0)))
+                self.pub.publish(Twist(linear=Vector3(x= 0), angular = Vector3(z = 0)))
 
 if __name__ == '__main__':
     node = PersonFollow()
