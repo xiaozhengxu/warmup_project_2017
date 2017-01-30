@@ -17,11 +17,9 @@ class WallApproach(object):
         self.front_distance = None
         self.left_front1 = None
         self.left_front2 = None
-        self.left_front3 = None
         self.left_mid = None
         self.left_back1 = None
         self.left_back2 = None
-        self.left_back3 = None
         self.target = rospy.get_param('~target_distance')
         self.k = rospy.get_param('~k')
         self.kd = rospy.get_param('~kd')
@@ -42,40 +40,31 @@ class WallApproach(object):
             self.left_front2 = msg.ranges[66]
         else:
             self.left_front2 = 10.0
-        # if msg.ranges[60]!=0.0:
-        #     self.left_front3 = msg.ranges[75]
         if msg.ranges[90]!=0.0:   
             self.left_mid = msg.ranges[90]
         else:
             self.left_mid = 10.0
-        # if msg.ranges[105]!=0.0:   
-        #     self.left_back1 = msg.ranges[105]
         if msg.ranges[116]!=0.0:
             self.left_back2 = msg.ranges[116]
         else:
             self.left_back2 = 10.0
         if msg.ranges[115]!=0.0:
-            self.left_back3 = msg.ranges[115]
+            self.left_back1 = msg.ranges[115]
         else:
-            self.left_back3 = 10.0
+            self.left_back1 = 10.0
 
         # if (self.left_front1!=None and self.left_front2!=None and self.left_back2!=None and self.left_back3!=None):
         my_marker = Marker(header = Header(frame_id = "base_link"), scale = Vector3(x = 0.1), points = (
         
         Point(x = math.sin(math.radians(25))*(self.left_front1+self.left_front2)/2,y = math.cos(math.radians(25))*(self.left_front2+self.left_front1)/2),
-        # Point(x = math.sin(math.pi/3)*self.left_front2,y = math.cos(math.pi/3)*self.left_front2),
-        # # Point(x = math.sin(5*math.pi/12)*self.left_front3,y = math.cos(5*math.pi/12)*self.left_front3),
-        # # Point(x = math.sin(7*math.pi/12)*self.left_back1,y = math.cos(7*math.pi/12)*self.left_back1),
-        # Point(x = math.sin(2*math.pi/3)*self.left_back2,y = math.cos(2*math.pi/3)*self.left_back2),
         Point(x = 0, y = self.left_mid),
-        Point(x = -math.sin(math.radians(25))*(self.left_back2+self.left_back3)/2, y = math.cos(math.radians(25))*(self.left_back2+self.left_back3)/2)), 
+        Point(x = -math.sin(math.radians(25))*(self.left_back2+self.left_back1)/2, y = math.cos(math.radians(25))*(self.left_back2+self.left_back1)/2)), 
 
         type = 4, color = ColorRGBA(g = 1, a = 1))
 
         self.vis_pub.publish(my_marker)
 
     def run(self):
-        print 'running'
         r = rospy.Rate(5)
         while not rospy.is_shutdown():
             if self.found_wall == False:
@@ -87,6 +76,7 @@ class WallApproach(object):
                         self.pub.publish(Twist(linear=Vector3(x=0.0),angular = Vector3(z = 0)))
                         self.found_wall = True
                         print 'found wall'
+            """Turning to follow wall:"""
             # elif self.follow_wall == False:
             #     if (self.left_mid > (self.target+0.05)) or (self.left_mid < (self.target-0.05)):
             #         error = self.left_mid - self.target
@@ -95,12 +85,12 @@ class WallApproach(object):
             #         self.follow_wall = True
             #         self.pub.publish(Twist(angular=Vector3(z=0)))
             #         print 'in direction to following wall'
-            else:
-                if self.left_mid != None:
-                    errord = self.left_mid - self.target
-                    errora = self.left_back3 - self.left_front1 # we're not really using this error now
-                    self.pub.publish(Twist(linear = Vector3(x = 0.3), angular = Vector3(z = errord*self.kd+errora*self.ka)))
-                    print "following wall"
+            else: 
+                """Following wall"""
+                errord = self.left_mid - self.target
+                errora = self.left_back3 - self.left_front1 # we're not really using this error now
+                self.pub.publish(Twist(linear = Vector3(x = 0.3), angular = Vector3(z = errord*self.kd+errora*self.ka)))
+                print "following wall"
             r.sleep()
     #k = 0.5, kd = 0.5, ka = 0.1
     # a better constant: kd = 0.2, ka = 0
