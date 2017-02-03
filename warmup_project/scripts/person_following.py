@@ -37,7 +37,7 @@ class PersonFollow(object):
                 min_front_dist = msg.ranges[i]
                 min_front_index = i
         for j in range(315,361):
-            if msg.ranges[i]>0.5 and msg.ranges[j]<min_front_dist:
+            if msg.ranges[j]>0.5 and msg.ranges[j]<min_front_dist:
                 min_front_dist = msg.ranges[j]
                 min_front_index = j
         """Accumulate all the scan points belonging to the person"""
@@ -67,8 +67,8 @@ class PersonFollow(object):
                     person_x.append(dl*math.cos(math.radians(al)))
                     person_y.append(dl*math.sin(math.radians(al)))
                 if dr!=0.0 and math.fabs(dr-min_front_dist)<0.3:
-                    person_x.append(dl*math.cos(math.radians(ar)))
-                    person_y.append(dl*math.sin(math.radians(ar)))
+                    person_x.append(dr*math.cos(math.radians(ar)))
+                    person_y.append(dr*math.sin(math.radians(ar)))
 
             person_center_x = sum(person_x)/len(person_x)
             person_center_y = sum(person_y)/len(person_y)
@@ -96,10 +96,12 @@ class PersonFollow(object):
         while not rospy.is_shutdown():
             if self.found_master:
                 errord = self.person_center_dist - self.target
-                if self.person_center_angle>300:
+                if self.person_center_angle!= None and self.person_center_angle>300:
                     errora = self.person_center_angle -361
-                elif self.person_center_angle<70:
+                elif self.person_center_angle!=None and self.person_center_angle<70:
                     errora = self.person_center_angle - 0
+                else:
+                    errora = 0
                 self.pub.publish(Twist(linear=Vector3(x = errord*self.kd), angular = Vector3(z = errora*self.ka)))
             else:
                 self.pub.publish(Twist(linear=Vector3(x= 0), angular = Vector3(z = 0)))
