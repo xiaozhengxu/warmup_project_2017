@@ -1,6 +1,6 @@
 Writeup: in your ROS package create a file to hold your project writeup. Any format is fine (markdown, word, pdf, etc.). Your writeup should answer the following questions.  I expect this writeup to be done in such a way that you are proud to include it as part of your professional portfolio.  As such, please make sure to write the report so that it is understandable to an external audience.  Consider adding pictures to your report, or links to youtube videos of your robot programs in action.  You have no idea how persuasive a project like this can be to a perspective employer!
 
-###For each behavior, describe the problem at a high-level. Include any relevant diagrams that help explain your approach.  Discuss your strategy at a high-level and include any tricky decisions that had to be made to realize a successful implementation.
+####For each behavior, describe the problem at a high-level. Include any relevant diagrams that help explain your approach.  Discuss your strategy at a high-level and include any tricky decisions that had to be made to realize a successful implementation.
 
 ####Drive Square:
 Behavior: Drive the neatos in a square of 1m by 1m.
