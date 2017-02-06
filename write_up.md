@@ -19,7 +19,7 @@ Behavior: Move towards the goal position, and if there is an obstacle within a c
 The robot determines its position relative to where it started using odometry and converts that from quarternions into x and y coordinates as well as its direction in degrees. If there are no values for the x and y initial positions, they are set as the current x and y positions. The current x and y positions are then subtracted from the intiial x and y positions to find the existing change in x and y. The robot then looks at the later scan distances all around it. If any of the distances are less than two meters, the robot will use trigonometry to alter change and x and y enough to move out of the way of the obstacle. It uses then the arctangent of change in x and change in y to find the new change in the angle of the robot's direction. We use a proportional controls for the angle to determine the speed that the robot turns to avoid obstacles. The robot moves forward at a set rate. This means that if the angle constant is too low the robot will not have enough time to move out completely out of the obstacles' way.
 
 
-####For the finite state controller, what was the overall behavior. What were the states? What did the robot do in each state? How did you combine and how did you detect when to transition between behaviors?  Consider including a state transition diagram in your writeup.
+####For the finite state controller, what was the overall behavior. What were the states? What did the robot do in each state? How did you combine and how did you detect when to transition between behaviors? 
 
 ![Finite State Diagram] (https://github.com/xiaozhengxu/warmup_project_2017/blob/master/Comp-robo-warmup-finite-state-diagram.png)
 
