@@ -18,6 +18,7 @@ The robot looks at all the laser scan distances in a 90-degree cone area in fron
 
 ####Obstacle Avoidance:
 Behavior: Move towards the goal position, and if there is an obstacle within a certain distance of the path, change directions to avoid/get around the obstacle.
+The robot determines its position relative to where it started using odometry and converts that from quarternions into x and y coordinates as well as its direction in degrees. If there are no values for the x and y initial positions, they are set as the current x and y positions. The current x and y positions are then subtracted from the intiial x and y positions to find the existing change in x and y. The robot then looks at the later scan distances all around it. If any of the distances are less than two meters, the robot will use trigonometry to alter change and x and y enough to move out of the way of the obstacle. It uses then the arctangent of change in x and change in y to find the new change in the angle of the robot's direction. We use a proportional controls for the angle to determine the speed that the robot turns to avoid obstacles. The robot moves forward at a set rate. This means that if the angle constant is too low the robot will not have enough time to move out completely out of the obstacles' way.
 
 
 ####For the finite state controller, what was the overall behavior. What were the states? What did the robot do in each state? How did you combine and how did you detect when to transition between behaviors?  Consider including a state transition diagram in your writeup.
@@ -28,6 +29,8 @@ Behavior: Move towards the goal position, and if there is an obstacle within a c
 We created classes for each of our behaviors. The _init_ functions initialized the defined the rosnode where the program would run, what inputs from the sensors of the robot it subscribed to (e.g. LaserScan, Odometry), where it would publish values from its functions to, and what property variables of our classes we want to initialize or have inputed as user arguments. Within the class we created functions that used the message data coming in from each of our subscribed inputs to publish messages to programs that we were using to debug the robot (e.g. rviz). They then include a run function that determines what messages are published to the robot to control its movement while it is running to complete its task. 
 
 ####What if any challenges did you face along the way? 
+It was difficult to find places outside of the CompRobo classroom with good enough signal strength to test code on the robot. The lack of open spaces we could use to move the robot around was frustrating. We ran into a lot of errors when running our programs. The laser scan wasn't always consistent which can be attributed to hardware but was also annoying. One of the most common and confusing was the "publishing to a closed topic" error which came form the VisualizationMarker topic. We had difficult maintaining simple, modular, readable code. The more we wrote, the harder it was to read; although, some of our later programs were more readable than our initial ones.
+
 
 ####What would you do to improve your project if you had more time? 
 - We could learn SMACH and use it for finite state control.
