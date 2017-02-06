@@ -1,5 +1,3 @@
-Writeup: in your ROS package create a file to hold your project writeup. Any format is fine (markdown, word, pdf, etc.). Your writeup should answer the following questions.  I expect this writeup to be done in such a way that you are proud to include it as part of your professional portfolio.  As such, please make sure to write the report so that it is understandable to an external audience.  Consider adding pictures to your report, or links to youtube videos of your robot programs in action.  You have no idea how persuasive a project like this can be to a perspective employer!
-
 ####For each behavior, describe the problem at a high-level. Include any relevant diagrams that help explain your approach.  Discuss your strategy at a high-level and include any tricky decisions that had to be made to realize a successful implementation.
 
 ####Drive Square:
@@ -24,6 +22,14 @@ The robot determines its position relative to where it started using odometry an
 ####For the finite state controller, what was the overall behavior. What were the states? What did the robot do in each state? How did you combine and how did you detect when to transition between behaviors?  Consider including a state transition diagram in your writeup.
 
 ![Finite State Diagram] (https://github.com/xiaozhengxu/warmup_project_2017/blob/master/Comp-robo-warmup-finite-state-diagram.png)
+
+Behavior: The robot avoids objects unless it has found a person to follow. If the bump sensor is triggered, the robot stops.
+
+States: 
+- OBSTAClE_AVOID_STATE: runs an obstacle_avoid function that unless the robot if bumped or has found a master, uses the angle proportional control and change in angle to avoid objects (does what Obstacle Avoidance does)
+- PERSON_FOLLOW_STATE: runs a person_follow function that unless the robot is bumped or no longer has a master, finds the center of mass and uses the angle and distance proprotional controls to keep the center of mass in front at a fixed distance (does what Person Following does)
+- STOPPED_STATE: if the robot bumped, it runs a stop function 
+
 
 ####How was your code structured?  Make sure to include a sufficient detail about the object-oriented structure you used for your project.
 We created classes for each of our behaviors. The _init_ functions initialized the defined the rosnode where the program would run, what inputs from the sensors of the robot it subscribed to (e.g. LaserScan, Odometry), where it would publish values from its functions to, and what property variables of our classes we want to initialize or have inputed as user arguments. Within the class we created functions that used the message data coming in from each of our subscribed inputs to publish messages to programs that we were using to debug the robot (e.g. rviz). They then include a run function that determines what messages are published to the robot to control its movement while it is running to complete its task. 
