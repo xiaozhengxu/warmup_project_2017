@@ -13,7 +13,7 @@ We implemented this behavior in two parts: first, find the wall; Second, follow 
 ####Person follow:
 Behavior: If there is a person within a cone area in front of the robot, it will follow the person at a certain distance, keeping the person directly in front of it. 
 The robot looks at all the laser scan distances in a 90-degree cone area in front of it. It determines the closest distance and its angle. If the closest distance is within a certain range, it is identified as a person. The laser scans around this closest distance is looked at. If the points around it have a similarly short distance (within 0.1 of the closest distance), they are also part of the person. When we have a collection of all the points of the person, we find the center of mass of those points. Then, we use two proportional controls: one on angle and one on distance to keep this center of mass directly in front of the robot and at a fixed distance. This works well generally but the robot travels slowly and so it is only able to follow the person if he/she walks slowly.
-
+![Person Following diagram](https://github.com/xiaozhengxu/warmup_project_2017/blob/master/Person%20Following.png)
 
 ####Obstacle Avoidance:
 Behavior: Move towards the goal position, and if there is an obstacle within a certain distance of the path, change directions to avoid/get around the obstacle.
