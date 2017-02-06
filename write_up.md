@@ -40,7 +40,7 @@ It was difficult to find places outside of the CompRobo classroom with good enou
 
 
 ####What are the key takeaways from this assignment for future robotic programming projects?
-1. Add an emergency bump stop to any program so the robot stops if it hits an obstacle. We implemented this by running a separate script while running another program. However, we still need to stop the other program manually when the robot hits something.
+1. Add an emergency bump stop to any program so the robot stops if it hits an obstacle.
 2. Print out useful information when running your program.
 3. Use visualizations to help you. 
 4. When necessary, lift the robot. Be careful not to let it ruin cables. 
