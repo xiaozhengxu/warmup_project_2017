@@ -46,15 +46,18 @@ class ObstacleAvoid(object):
         self.cur_y = cur_pos[1]
         self.cur_yaw = cur_pos[2]
         if self.init_x == None or self.init_y == None:
-            self.init_x = self.cur_x + 3
-            self.init_y =  self.cur_y + 3
+            self.init_x = self.cur_x 
+            self.init_y =  self.cur_y
 
     def process_scan(self,msg):
         """Find the closest obstacles in front of the robot:"""
-        # self.dx = self.init_x - self.cur_x
-        # self.dy = self.init_y - self.cur_y
-        self.dx = 0
-        self.dy = 0
+        self.dx = self.init_x - self.cur_x
+        self.dy = self.init_y - self.cur_y
+        if self.dx <0.1 and self.dy<0.1:
+            self.dx = 0
+            self.dy = 0
+        # self.dx = 0
+        # self.dy = 0
         if self.dx > 4:
             self.dx = 4
         if self.dy > 4:
