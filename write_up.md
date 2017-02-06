@@ -24,7 +24,6 @@ The robot determines its position relative to where it started using odometry an
 ![Finite State Diagram] (https://github.com/xiaozhengxu/warmup_project_2017/blob/master/Comp-robo-warmup-finite-state-diagram.png)
 
 Behavior: The robot avoids objects unless it has found a person to follow. If the bump sensor is triggered, the robot stops.
-
 States: 
 - OBSTAClE_AVOID_STATE: runs an obstacle_avoid function that unless the robot if bumped or has found a master, uses the angle proportional control and change in angle to avoid objects (does what Obstacle Avoidance does)
 - PERSON_FOLLOW_STATE: runs a person_follow function that unless the robot is bumped or no longer has a master, finds the center of mass and uses the angle and distance proprotional controls to keep the center of mass in front at a fixed distance (does what Person Following does)
