@@ -25,14 +25,14 @@ This class is defined to detect information from the bump sensor and stop if it 
 		self.see_obstacle = False
 		self.r = rospy.Rate(10)
 
-	# process bump sensor info to determined if it has been triggered or not
+	# process bump sensor info to determine if triggered or not
 	def process_bump(self,msg):
 		if (msg.leftFront==1 or msg.leftFront==1 or msg.rightFront ==1 or msg.rightSide==1):
 			self.is_bumped = True
 		else:
 			self.is_bumped = False
 
-	# process information from the laser scan to detect obstacles in robot's path
+	# process laser scan info to detect obstacles in robot's path
 	def process_scan(self,msg):
 		for dist in msg.ranges[0:10]: #first ten degrees clockwise from the front of the robot
 			if dist == 0.0:
@@ -48,7 +48,7 @@ This class is defined to detect information from the bump sensor and stop if it 
 				return
 		self.see_obstacle = False	
 	
-	#run function that if stops the robot from moving if the bump sensor has been triggered
+	#run function that stops the robot if bump sensor is triggered
 	def run(self):
 		while not rospy.is_shutdown():
 			linear_msg = Vector3(x = 0)
