@@ -14,5 +14,4 @@ Katie:
 
 Write up improvement: 
 - Added introduction to what we are doing in the project 
-- Added what future improvements could be made 
 - Added more about what we learnt
