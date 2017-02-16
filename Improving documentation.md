@@ -1,4 +1,4 @@
-Added comments for:
+Added comments for all scripts:
 
 Judy:
 - Drive-square.py
