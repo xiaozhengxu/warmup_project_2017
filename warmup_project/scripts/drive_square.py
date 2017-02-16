@@ -11,14 +11,17 @@ import math
 class Drive_square(object):
 
 	def __init__(self):
+		# init the node
 		rospy.init_node('drive_square')
+		#set up pubs, subs and sleep rate
 		rospy.Subscriber('/odom', Odometry, self.process_odom)
 		self.pub = rospy.Publisher('/cmd_vel',Twist, queue_size = 10)
 		self.r = rospy.Rate(10)
+		# initialize variables
 		self.x = None
 		self.z = None
-		self.state = 'turn'
 		self.last_pos = None
+		#The four corners of the square:
 		self.initial_pos = None
 		self.pos_2 = None
 		self.pos_3 = None
@@ -26,10 +29,15 @@ class Drive_square(object):
 		self.done = False
 
 	def process_odom(self,msg):
+		'''This function processes the Odometry message and 
+		sets the robot's x(linear) and z(angular) velocities according to the Robot's position and orientation. 
+		It tracks whether the robot has got to each of the four corners of the square and acts accordingly.
+		Dist_to_last_pos: Distance to the last position the robot was in'''
 		orien_z = msg.pose.pose.orientation.z
 		orien_w = msg.pose.pose.orientation.w
-		if self.last_pos!=None:
+		if self.last_pos!=None: #updates distance to last position
 			dist_to_last_pos = math.sqrt((msg.pose.pose.position.x-self.last_pos.x)**2+(msg.pose.pose.position.y-self.last_pos.y)**2)		
+		#Checks to see which position the robot is at and acts accordingly. 
 		if self.initial_pos == None:
 			self.initial_pos = msg.pose.pose.position # point object
 			self.last_pos = self.initial_pos
@@ -89,21 +97,22 @@ class Drive_square(object):
 				twist_msg = Twist(linear=linear_msg, angular = angular_msg)
 				self.pub.publish(twist_msg)
 				self.done = True
-
-# in classroom: turning to the left 
-# facing front wall orientation.z: 0.69, w: 0.7188
-# facing left wall orientation.z: 0.99, w: 0.032
-# facing back wall orientation.z: 0.7315, w:-0.6818
-# facing right wall orientation.z: 0.0946 , w: -0.996
+				
+		'''Values of quaternion z and w for each of the four angles'''
+		# in classroom: turning to the left 
+		# facing front wall orientation.z: 0.69, w: 0.7188
+		# facing left wall orientation.z: 0.99, w: 0.032
+		# facing back wall orientation.z: 0.7315, w:-0.6818
+		# facing right wall orientation.z: 0.0946 , w: -0.996
 	
 	def run(self):
 		while not rospy.is_shutdown():
+			#Publish a Twist message to cmd_vel if there are good values from process Odom and the robot hasn't finished the square
 			if self.x !=None and self.z!=None and self.done == False:
 				linear_msg = Vector3(x = self.x)
 				angular_msg = Vector3(z = self.z)
 				twist_msg = Twist(linear=linear_msg, angular = angular_msg)
 				self.pub.publish(twist_msg)
-				# print twist_msg
 			self.r.sleep()
 
 if __name__ == '__main__':
