@@ -2,7 +2,7 @@
 
 ####Drive Square:
 Behavior: Drive the neatos in a square of 1m by 1m.
-We used the Odometry of the neatos to determine it's orientation and position. Because we did not have a function to convert the Odometry's quartonions to Euler angles, we recorded four quartonion values that correspond to four orientations at right angles. Then, we rotated our robot until it reached the first orientation, then we made it go forward 1m, then rotate it to the second orientation, and so on. This strategy worked well as long as we gave an error range for the orientation values and turned the robot slowly (angular z = 0.3). The robot was able to drive in a square and return to its original position.
+We used the Odometry of the neatos to determine it's orientation and position. Because we did not have a function to convert the Odometry's quaternions to Euler angles, we recorded four quartonion values that correspond to four orientations at right angles. Then, we rotated our robot until it reached the first orientation, then we made it go forward 1m, then rotate it to the second orientation, and so on. This strategy worked well as long as we gave an error range for the orientation values and turned the robot slowly (angular z = 0.3). The robot was able to drive in a square and return to its original position.
 
 ####Wall follow:
 Behavior: Approach a wall and turn to follow it.
