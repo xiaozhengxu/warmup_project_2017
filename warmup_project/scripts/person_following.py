@@ -18,8 +18,8 @@ class PersonFollow(object):
         self.vis_pub = rospy.Publisher('visualization_marker',Marker, queue_size = 10)
         #get parameters for proportional control
         self.target = rospy.get_param('~target_distance')
-        self.kd = rospy.get_param('~kd')
-        self.ka = rospy.get_param('~ka')
+        self.kd = rospy.get_param('~kd') #proportional control constant for distance to person
+        self.ka = rospy.get_param('~ka') #proportional control constant for angle of person
         
         #Good paremeters:
         # target distance = 1, kd = 0.5-1, ka = 0.5-1
@@ -126,8 +126,10 @@ class PersonFollow(object):
 #                 print "errord:", errord
                 #Publish twist messages:
                 if errora!=None and errord!=None:
+                    #Publish a twist message that proportionally control for the errors to maintain target distance and angle
                     self.pub.publish(Twist(linear=Vector3(x = errord*self.kd), angular = Vector3(z = math.radians(errora)*self.ka)))
                 else:
+                    #If one of the error is None, something it wrong, don't publish
                     self.pub.publish(Twist(linear=Vector3(x= 0), angular = Vector3(z = 0)))
             else: 
                 self.pub.publish(Twist(linear=Vector3(x= 0), angular = Vector3(z = 0))) #If no person is found, stop in place
