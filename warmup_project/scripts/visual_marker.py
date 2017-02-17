@@ -18,6 +18,6 @@ my_marker = Marker(header = Header(frame_id = "odom"), pose = Pose(position = Po
 r = rospy.Rate(10)
 
 while not rospy.is_shutdown():
-    """ Run function for publsihing the marker"""
+    # publsih the marker if not shut down
     pub.publish(my_marker)
 
