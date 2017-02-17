@@ -20,15 +20,22 @@ def convert_pose_to_xy_and_theta(pose):
     return (pose.position.x, pose.position.y, angles[2])
 
 class ObstacleAvoid(object):
+"""
+This class is defined to detect information from the laser scan to avoid obstacles in path.
+"""
     def __init__(self):
+        # initialize obstacle avoid node
         rospy.init_node('obstacle_avoid')
+        # subscribe to laser scan and odometry inputs 
         rospy.Subscriber('/stable_scan', LaserScan, self.process_scan)
         rospy.Subscriber('/odom', Odometry, self.process_odom)
+        # publish Twist messages to command velocity and a Marker message to visualization marker 
         self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.vis_pub = rospy.Publisher('visualization_marker',Marker, queue_size = 10)
-
+        # initialize constants as user input values
         self.kd = rospy.get_param('~kd')
         self.ka = rospy.get_param('~ka')
+        # initialize important attributes
         self.init_x = None
         self.init_y = None
         self.init_yaw = None
@@ -41,58 +48,41 @@ class ObstacleAvoid(object):
         # target distance = 1, kd = 0.5-1, ka = 0.5-1
 
     def process_odom(self,msg):
+        """ Determine where the robot is from its starting position"""
         cur_pos = convert_pose_to_xy_and_theta(msg.pose.pose)
-        self.cur_x = cur_pos[0]
-        self.cur_y = cur_pos[1]
-        self.cur_yaw = cur_pos[2]
+        self.cur_x = cur_pos[0]     # current x postion
+        self.cur_y = cur_pos[1]     # current y position
+        self.cur_yaw = cur_pos[2]   # current angle
         if self.init_x == None or self.init_y == None:
             self.init_x = self.cur_x 
             self.init_y =  self.cur_y
 
     def process_scan(self,msg):
-        """Find the closest obstacles in front of the robot:"""
-        self.dx = self.init_x - self.cur_x
-        self.dy = self.init_y - self.cur_y
+        """ Find the closest obstacles in front of the robot: """
+        self.dx = self.init_x - self.cur_x # change in x
+        self.dy = self.init_y - self.cur_y # change in y
         if self.dx <0.1 and self.dy<0.1:
             self.dx = 0
             self.dy = 0
-        # self.dx = 0
-        # self.dy = 0
+
+        # limit maximum difference in x and y positions
         if self.dx > 4:
             self.dx = 4
         if self.dy > 4:
             self.dy = 4
-        #dtheta = atan2((self.init_y - self.cur_y)/(self.init_x - self.cur_x))
-        # found_obstacle = False
+
+        # calculate change in x and y from laser scan distances
         for i, d in enumerate(msg.ranges):
             if d < 2 and d!=0.0:
-                # if found_obstacle == False:
-                #     found_obstacle = True
                 self.dx += -1*d*math.cos(math.radians(i))
                 self.dy += -1*d*math.sin(math.radians(i))
-        # for i, d in enumerate(msg.ranges[315:361]):
-        #     if d < 2 and d!=0.0:
-        #         # if found_obstacle == False:
-        #         #     found_obstacle = True
-        #         self.dx += -1*d*math.cos(math.radians(i))
-        #         self.dy += -1*d*math.sin(math.radians(i))
 
-        # if self.dx == 0 and self.dy == 0:
-        #     self.dx = self.init_x - self.cur_x
-        #     self.dy = self.init_y - self.cur_y
-        #     print "no obstacles"
-
-        # print "found obstacle:", found_obstacle
-
+        # calculate change in angle from chang ein x and y
         self.dtheta = math.atan2(self.dy,self.dx)
-        # self.rt_d = math.sqrt(self.dx**2 + self.dy**2)
 
-        # goal_marker = Marker(header = Header(frame_id = "odom"), scale = Vector3(x = 0.1, y = 0.1, z = 0.1), 
-        # pose = Pose(position = Point(x = self.init_x+3, y = self.init_y+3)), 
-        # type = 2, color = ColorRGBA(g = 1, a = 1))
-        # self.vis_pub.publish(goal_marker)
 
     def run(self):
+        """ Run function that publishes a Twist message to determine the robot's speed and direction """
         r = rospy.Rate(5)
         while not rospy.is_shutdown():
             if self.dtheta!=None:
