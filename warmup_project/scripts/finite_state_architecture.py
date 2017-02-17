@@ -72,6 +72,7 @@ class FiniteStateController(object):
         self.bumped = False
 
     def process_bump(self, msg):
+        """ Process bump sensor info to determine if triggered or not """
         self.state_pub.publish(String(self.state))
         if (msg.leftFront or
             msg.rightFront or
@@ -80,6 +81,7 @@ class FiniteStateController(object):
             self.bumped = True
 
     def process_odom(self,msg):
+        """ Determine where the robot is from its starting position """
         cur_pos = convert_pose_to_xy_and_theta(msg.pose.pose)
         self.cur_x = cur_pos[0]
         self.cur_y = cur_pos[1]
@@ -167,6 +169,7 @@ class FiniteStateController(object):
         self.dtheta = math.atan2(self.dy,self.dx)
 
     def obstacle_avoid(self):
+        """ Publishes a Twist message to determine the robot's speed and direction unless state must change"""
         r = rospy.Rate(5)
         while not rospy.is_shutdown():
             if self.bumped:
@@ -183,6 +186,11 @@ class FiniteStateController(object):
     def person_follow(self):
         r = rospy.Rate(5)
         while not rospy.is_shutdown():
+            """
+            Publish Twist message to cmd_vel based on distance and angle to person center of mass unless state must change
+            errord: error in distance to person (want to keep this distance self.target)
+            errora: error in angle to person (want to keep this angle 0, directly in front of person)
+            """
             if self.bumped:
                 return FiniteStateController.STOPPED_STATE
             elif self.found_master:
@@ -208,6 +216,7 @@ class FiniteStateController(object):
 
                  
     def stop(self):
+        """ Stops the robot if bump sensor is triggered unless state must change """
         while not rospy.is_shutdown():
             self.pub.publish(Twist(linear=Vector3(x= 0), angular = Vector3(z = 0)))
             if not self.bumped:
@@ -217,6 +226,7 @@ class FiniteStateController(object):
                     return FiniteStateController.OBSTAClE_AVOID_STATE
 
     def run(self):
+        """ Run function that determines which function will run based on the state of the robot """
         while not rospy.is_shutdown():
             # print "self.found master:",self.found_master
             # print "self.bumped:", self.bumped
